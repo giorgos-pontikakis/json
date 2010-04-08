@@ -3,7 +3,7 @@
 (defun escape-string-json (string)
   (let* ((test #'(lambda (char)
 		   (find char
-			 '(#\Backspace #\Tab #\Newline #\Formfeed #\Return #\Newline #\\ #\' #\"))))
+			 '(#\Backspace #\Tab #\Newline #\Formfeed #\Return #\Newline #\\ #\/ #\"))))
 	 (first-pos (position-if test string)))
     (if (not first-pos)
 	string
@@ -20,7 +20,7 @@
 		  (#\Formfeed (write-sequence "\\f" s))
 		  (#\Return (write-sequence "\\r" s)) 
 		  (#\\ (write-sequence "\\\\" s))
-		  (#\' (write-sequence "\\'" s))
+		  (#\/ (write-sequence "\\/" s))
 		  (#\" (write-sequence "\\\"" s)))
 		(finally (write-sequence string s :start old-pos)))))))
 
@@ -32,7 +32,7 @@
     (#\Formfeed "\\f")
     (#\Return "\\r") 
     (#\\ "\\\\")
-    (#\' "\\'")
+    (#\/ "\\/")
     (#\" "\\\"")
     (otherwise char)))
 
