@@ -2,12 +2,20 @@
 
 (in-package :cl)
 
-(asdf:defsystem :json
-    :serial t
-    :depends-on (:iterate)
-    :components ((:file "package") 
-		 (:file "json")))
+(defpackage :json-asdf
+    (:use :cl :asdf))
 
+(in-package :json-asdf)
 
+(defsystem :json
+  :serial t
+  :components ((:file "package")
+               (:file "json")))
 
-
+(defsystem :json-tests
+  :depends-on (:json :hu.dwim.stefil)
+  :serial t
+  :components ((:module "tests"
+                :serial t
+                :components ((:file "package")
+                             (:file "json-tests")))))

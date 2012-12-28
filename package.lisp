@@ -1,7 +1,5 @@
 (in-package :cl)
 
 (defpackage :json
-  (:use :common-lisp
-   :iterate)
-  (:export
-   :write-json))
+  (:use :common-lisp)
+  (:export :write-json))

@@ -1,29 +1,5 @@
 (in-package :json)
 
-(defun escape-string-json (string)
-  (let* ((test #'(lambda (char)
-                   (find char
-                         '(#\Backspace #\Tab #\Newline #\Formfeed #\Return #\Newline #\\ #\/ #\"))))
-         (first-pos (position-if test string)))
-    (if (not first-pos)
-        string
-        (with-output-to-string (s)
-          (iter (for old-pos initially 0 then (1+ pos))
-                (for pos initially first-pos then (position-if test string :start old-pos))
-                (for char = (and pos (char string pos)))
-                (while pos)
-                (write-sequence string s :start old-pos :end pos)
-                (case char
-                  (#\Backspace "\\b" s)
-                  (#\Tab (write-sequence "\\t" s))
-                  (#\Newline (write-sequence "\\n" s))
-                  (#\Formfeed (write-sequence "\\f" s))
-                  (#\Return (write-sequence "\\r" s))
-                  (#\\ (write-sequence "\\\\" s))
-                  (#\/ (write-sequence "\\/" s))
-                  (#\" (write-sequence "\\\"" s)))
-                (finally (write-sequence string s :start old-pos)))))))
-
 (defun escape-char-json (char)
   (case char
     (#\Backspace "\\b")
@@ -35,6 +11,23 @@
     (#\/ "\\/")
     (#\" "\\\"")
     (otherwise char)))
+
+(defun escape-string-json (string)
+  (let* ((test #'(lambda (char)
+                   (find char
+                         '(#\Backspace #\Tab #\Newline #\Formfeed #\Return #\Newline #\\ #\/ #\"))))
+         (first-pos (position-if test string)))
+    (if (not first-pos)
+        string
+        (with-output-to-string (s)
+          (loop for old-pos = 0 then (1+ pos)
+                for pos = first-pos then (position-if test string :start old-pos)
+                for char = (and pos (char string pos))
+                while pos
+                do
+                   (write-sequence string s :start old-pos :end pos)
+                   (princ (escape-char-json char) s)
+                finally (write-sequence string s :start old-pos))))))
 
 
 ;;; ----------------------------------------------------------------------
@@ -76,7 +69,7 @@
   (princ "false" stream))
 
 (defmethod write-json ((datum character) &optional (stream *standard-output*))
-  "A Lisp character is a JSON character"
+  "A Lisp character is a JSON string of unary length"
   (princ (escape-char-json datum) stream))
 
 (defmethod write-json ((datum cons) &optional (stream *standard-output*))
@@ -87,20 +80,22 @@
 
 (defmethod write-json ((datum vector) &optional (stream *standard-output*))
   "A Lisp vector is a JSON array"
-  (write-json #\[ stream)
-  (iter (for value in-vector datum)
-        (unless (first-iteration-p)
-          (write-json #\, stream))
-        (write-json value stream))
-  (write-json #\] stream))
+  (princ #\[ stream)
+  (loop for value across datum
+        for delimiter = "" then #\,
+        do
+           (princ delimiter stream)
+           (write-json value stream))
+  (princ #\] stream))
 
 (defmethod write-json ((datum hash-table) &optional (stream *standard-output*))
   "A Lisp hash-table is a JSON object"
-  (write-json #\{ stream)
-  (iter (for (key value) in-hashtable datum)
-        (unless (first-iteration-p)
-          (write-json #\, stream))
-        (write-json key stream)
-        (write-json #\: stream)
-        (write-json value stream))
-  (write-json #\} stream))
+  (princ #\{ stream)
+  (loop for key being the hash-keys in datum using (hash-value value)
+        for delimiter = "" then #\,
+        do
+           (princ delimiter stream)
+           (write-json key stream)
+           (princ #\: stream)
+           (write-json value stream))
+  (princ #\} stream))
