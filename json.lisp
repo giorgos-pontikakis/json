@@ -5,7 +5,7 @@
     (#\Backspace "\\b")
     (#\Tab "\\t")
     (#\Newline "\\n")
-    (#\Formfeed "\\f")
+    (#\Page "\\f")
     (#\Return "\\r")
     (#\\ "\\\\")
     (#\/ "\\/")
@@ -15,7 +15,7 @@
 (defun escape-string-json (string)
   (let* ((test #'(lambda (char)
                    (find char
-                         '(#\Backspace #\Tab #\Newline #\Formfeed #\Return #\Newline #\\ #\/ #\"))))
+                         '(#\Backspace #\Tab #\Newline #\Page #\Return #\Newline #\\ #\/ #\"))))
          (first-pos (position-if test string)))
     (if (not first-pos)
         string
