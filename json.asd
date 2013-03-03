@@ -8,6 +8,7 @@
 (in-package :json-asdf)
 
 (defsystem :json
+  :version "1.0.0"
   :serial t
   :components ((:file "package")
                (:file "json")))
