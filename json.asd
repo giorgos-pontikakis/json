@@ -1,9 +1,9 @@
 ;;; -*- Mode: LISP; Syntax: COMMON-LISP; Package: CL-USER; Base: 10 -*-
 
-(in-package :cl)
+(in-package :cl-user)
 
 (defpackage :json-asdf
-    (:use :cl :asdf))
+  (:use :cl :asdf))
 
 (in-package :json-asdf)
 
